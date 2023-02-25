@@ -51,6 +51,7 @@ Mkfile.old
 dkms.conf
 /.vs
 .vscode
+*/.vscode
 /AvnetStarterKitReferenceDesign/bin/ARM/Debug
 /AvnetStarterKitReferenceDesign/obj/ARM/Debug
 /AvnetStarterKitReferenceDesign/.vs/ConnectedServices.json
