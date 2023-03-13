@@ -59,6 +59,8 @@
 #include <applibs/wificonfig.h>
 #include <azureiot/iothub_device_client_ll.h>
 
+#include "../mqtt_utilities.h"
+
 #ifdef M0_INTERCORE_COMMS
 //// ADC connection
 #include <sys/time.h>
@@ -443,7 +445,7 @@ static int InitPeripheralsAndHandlers(void)
 	
 	if (initI2c() == -1) {
 		return -1;
-	}
+	} else if (Mqtt)
 	
 	// Traverse the twin Array and for each GPIO item in the list open the file descriptor
 	for (int i = 0; i < twinArraySize; i++) {

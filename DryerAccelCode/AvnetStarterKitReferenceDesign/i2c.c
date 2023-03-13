@@ -50,6 +50,13 @@
 #include "i2c.h"
 #include "lsm6dso_reg.h"
 
+// mqtt
+#include "../mqtt_utilities.h"
+
+const char* MQTT_ADDRESS = "ece1894.eastus.cloudapp.azure.com";
+const char* MQTT_TOPIC = "DryerTelemetry";
+int mqtt_message_counter; // counts mqtt sequence
+
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
 static axis3bit16_t data_raw_angular_rate;
@@ -136,10 +143,14 @@ void AccelTimerEventHandler(EventData *eventData)
 		angular_rate_dps[1] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1] - raw_angular_rate_calibration.i16bit[1])) / 1000.0;
 		angular_rate_dps[2] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2] - raw_angular_rate_calibration.i16bit[2])) / 1000.0;
 
+		
+
 		Log_Debug("LSM6DSO: Angular rate [dps] : %4.2f, %4.2f, %4.2f\r\n",
 			angular_rate_dps[0], angular_rate_dps[1], angular_rate_dps[2]);
 
 	}
+	
+	MQTTPublish(MQTT_TOPIC, sprintf(""))
 
 // The ALTITUDE value calculated is actually "Pressure Altitude". This lacks correction for temperature (and humidity)
 // "pressure altitude" calculator located at: https://www.weather.gov/epz/wxcalc_pressurealtitude
@@ -188,11 +199,17 @@ void AccelTimerEventHandler(EventData *eventData)
 
 }
 
+int initMQTTI2c(void) {
+	MQTTInit(MQTT_ADDR, "1833", MQTT_TOPIC);
+}
+
 /// <summary>
 ///     Initializes the I2C interface.
 /// </summary>
 /// <returns>0 on success, or -1 on failure</returns>
 int initI2c(void) {
+
+	initMQTTI2c(); // start mqtt connection
 
 	// Begin MT3620 I2C init 
 
@@ -344,7 +361,7 @@ int initI2c(void) {
 ///     Closes the I2C interface File Descriptors.
 /// </summary>
 void closeI2c(void) {
-
+	MQTTStop();
 	CloseFdAndPrintError(i2cFd, "i2c");
 	CloseFdAndPrintError(accelTimerFd, "accelTimer");
 }
