@@ -6,8 +6,8 @@
   "CmdArgs": [],
   "Capabilities": {
     "AllowedApplicationConnections": [ "005180bc-402f-4cb3-a662-72937dbcde47" ],
-    "AllowedConnections": [],
-    "AllowedTcpServerPorts": [],
+    "AllowedConnections": ["ece1894.eastus.cloudapp.azure.com"],
+    "AllowedTcpServerPorts": [1883],
     "AllowedUdpServerPorts": [],
     "Gpio": [
       "$AVNET_MT3620_SK_GPIO0",

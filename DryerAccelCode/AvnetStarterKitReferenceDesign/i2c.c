@@ -150,7 +150,21 @@ void AccelTimerEventHandler(EventData *eventData)
 
 	}
 	
-	MQTTPublish(MQTT_TOPIC, sprintf(""))
+	// 6 * (7 characters of float representation + period + comma separator) + sequence number
+	int mqtt_message_size = 6*(9*sizeof(char)) + sizeof(char); 
+
+	char *mqtt_message_string = (char*)malloc(mqtt_message_size);
+	sprintf(mqtt_message_string, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
+		acceleration_mg[0], 
+		acceleration_mg[1], 
+		acceleration_mg[2],
+		angular_rate_dps[0],
+		angular_rate_dps[1],
+		angular_rate_dps[2]
+	);
+
+	// send message
+	MQTTPublish(MQTT_TOPIC, mqtt_message_string);
 
 // The ALTITUDE value calculated is actually "Pressure Altitude". This lacks correction for temperature (and humidity)
 // "pressure altitude" calculator located at: https://www.weather.gov/epz/wxcalc_pressurealtitude
