@@ -1,0 +1,27 @@
+# ninja log v5
+4	268	1679422918647872937	CMakeFiles/AvnetStarterKitReferenceDesign.dir/i2c.c.obj	8ec5d71d1049a05f
+1	141	1679027609438228811	CMakeFiles/AvnetStarterKitReferenceDesign.dir/epoll_timerfd_utilities.c.obj	ee7a414fce74a163
+272	355	1679422918739871225	AvnetStarterKitReferenceDesign.out	b7b00ae08410a5d6
+142	406	1679027609702226370	CMakeFiles/AvnetStarterKitReferenceDesign.dir/azure_iot_utilities.c.obj	a6c457435556eef0
+307	468	1679027136684876149	CMakeFiles/AvnetStarterKitReferenceDesign.dir/mqtt_utilities.c.obj	eda16499ac065b96
+357	420	1679422918803870033	/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/approotAvnetStarterKitReferenceDesign/bin/app	a727e7ab360bc6c3
+3	672	1679029146618979867	CMakeFiles/AvnetStarterKitReferenceDesign.dir/lsm6dso_reg.c.obj	79ce75f2e0ceb3e8
+3	307	1679027136520879527	CMakeFiles/AvnetStarterKitReferenceDesign.dir/thirdparty/MQTT-C/src/mqtt_pal.c.obj	47c84025d4355cf
+357	420	1679422918803870033	approotAvnetStarterKitReferenceDesign/bin/app	a727e7ab360bc6c3
+1	230	1679027989663546539	CMakeFiles/AvnetStarterKitReferenceDesign.dir/device_twin.c.obj	c9ac9a9a6d5ecc6e
+0	125	1679421583699236423	CMakeFiles/AvnetStarterKitReferenceDesign.dir/main.c.obj	172373793a4f7c4d
+420	2820	1679422921115826984	/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/AvnetStarterKitReferenceDesign.imagepackage	f6de53f75c14b9a0
+420	2820	1679422921115826984	AvnetStarterKitReferenceDesign.imagepackage	f6de53f75c14b9a0
+1	453	1679027136668876478	CMakeFiles/AvnetStarterKitReferenceDesign.dir/thirdparty/MQTT-C/src/mqtt.c.obj	de5e41706af44979
+1	90	1679029343422627346	CMakeFiles/AvnetStarterKitReferenceDesign.dir/common.c.obj	a7aa99fb87e700f4
+1	393	1679027609690226481	CMakeFiles/AvnetStarterKitReferenceDesign.dir/parson.c.obj	10edfd2808223100
+9	49	1679423906432216406	approotAvnetStarterKitReferenceDesign/bin/app	a727e7ab360bc6c3
+9	49	1679423906432216406	/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/approotAvnetStarterKitReferenceDesign/bin/app	a727e7ab360bc6c3
+49	1596	1679423907900222065	AvnetStarterKitReferenceDesign.imagepackage	f6de53f75c14b9a0
+49	1596	1679423907900222065	/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/AvnetStarterKitReferenceDesign.imagepackage	f6de53f75c14b9a0
+7	270	1679424174617333964	CMakeFiles/AvnetStarterKitReferenceDesign.dir/i2c.c.obj	8ec5d71d1049a05f
+271	388	1679424174733330863	AvnetStarterKitReferenceDesign.out	b7b00ae08410a5d6
+388	422	1679424174769329900	approotAvnetStarterKitReferenceDesign/bin/app	a727e7ab360bc6c3
+388	422	1679424174769329900	/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/approotAvnetStarterKitReferenceDesign/bin/app	a727e7ab360bc6c3
+422	2000	1679424176261290804	AvnetStarterKitReferenceDesign.imagepackage	f6de53f75c14b9a0
+422	2000	1679424176261290804	/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/AvnetStarterKitReferenceDesign.imagepackage	f6de53f75c14b9a0

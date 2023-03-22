@@ -1,0 +1,4 @@
+/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/CMakeFiles/AvnetStarterKitReferenceDesign.dir
+/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/CMakeFiles/MakeImage.dir
+/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/CMakeFiles/edit_cache.dir
+/home/nml/sphere/ece-1894-with-microsoft/DryerAccelCode/out/ARM-Debug/CMakeFiles/rebuild_cache.dir
