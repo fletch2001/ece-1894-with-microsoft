@@ -62,3 +62,4 @@ dkms.conf
 /InterCoreCommsMT3620_BMetal/.vs
 /AvnetStarterKitReferenceDesign/out
 /AvnetStarterKitReferenceDesign/app_manifest - Copy.json
+.vscode/settings.json
