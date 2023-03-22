@@ -47,7 +47,7 @@
 #include "applibs_versions.h"
 #include "epoll_timerfd_utilities.h"
 #include "i2c.h"
-#include "hw/avnet_mt3620_sk.h"
+#include <hw/avnet_mt3620_sk.h>
 #include "deviceTwin.h"
 #include "azure_iot_utilities.h"
 #include "connection_strings.h"

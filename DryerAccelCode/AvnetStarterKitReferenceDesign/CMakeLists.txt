@@ -18,5 +18,5 @@ target_link_libraries(${PROJECT_NAME} m azureiot applibs pthread gcc_s c)
 target_include_directories(${PROJECT_NAME} PUBLIC ${AZURE_SPHERE_API_SET_DIR}/usr/include/azureiot ${AZURE_SPHERE_API_SET_DIR}/usr/include/azure_prov_client)
 target_compile_definitions(${PROJECT_NAME} PUBLIC AZURE_IOT_HUB_CONFIGURED)
 
-azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "${projectDir}../Hardware/avnet_mt3620_sk" TARGET_DEFINITION "avnet_mt3620_sk.json")
+azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DEFINITION "avnet_mt3620_sk.json")
 azsphere_target_add_image_package(${PROJECT_NAME}) 

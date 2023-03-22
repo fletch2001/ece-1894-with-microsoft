@@ -43,7 +43,7 @@
 #include <applibs/log.h>
 #include <applibs/i2c.h>
 
-#include "hw/avnet_mt3620_sk.h"
+#include <hw/avnet_mt3620_sk.h>
 #include "deviceTwin.h"
 #include "azure_iot_utilities.h"
 #include "build_options.h"
