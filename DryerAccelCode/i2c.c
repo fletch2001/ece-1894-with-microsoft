@@ -58,8 +58,9 @@ const char* MQTT_ADDRESS = "20.62.169.88";
 const char* MQTT_TOPIC = "DryerTelemetry";
 int mqtt_message_counter = -1; // counts mqtt sequence
 
-// 6 * (7 characters of float representation + period + comma separator) + sequence number (10 digits in max int so 10 characters)
-#define MQTT_MESSAGE_SIZE 6*(9*sizeof(char)) + 10*sizeof(char)
+// 6 * (7 characters of float representation + period + comma separator) + sequence number (10 digits in max int so 10 characters) + null terminator
+//#define MQTT_MESSAGE_SIZE 6*(9*sizeof(char)) + 10*sizeof(char) + sizeof(char)
+#define MQTT_MESSAGE_SIZE 150
 
 
 /* Private variables ---------------------------------------------------------*/
@@ -158,7 +159,18 @@ void AccelTimerEventHandler(EventData *eventData)
 	// send message
 	if(reg)
 	{
-		char *mqtt_message_string = (char*)malloc(MQTT_MESSAGE_SIZE);
+		// char *mqtt_message_string = (char*)malloc(MQTT_MESSAGE_SIZE);
+
+		size_t mqtt_message_size = snprintf(NULL, 0, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
+			acceleration_mg[0], 
+			acceleration_mg[1], 
+			acceleration_mg[2],
+			angular_rate_dps[0],
+			angular_rate_dps[1],
+			angular_rate_dps[2]
+		) + 1;
+
+		char *mqtt_message_string = (char *)malloc(mqtt_message_size);
 		sprintf(mqtt_message_string, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
 			acceleration_mg[0], 
 			acceleration_mg[1], 
@@ -171,19 +183,18 @@ void AccelTimerEventHandler(EventData *eventData)
 		//Log_Debug(mqtt_message_string);
 		//Log_Debug("\n");
 		if(MQTTPublish(MQTT_TOPIC, mqtt_message_string) == 0) {
-			char *mqtt_success_string = (char*)malloc(sizeof(mqtt_message_string) + sizeof(": TX With Success\n"));
-			sprintf(mqtt_success_string, "%s: TX With Success\n", mqtt_message_string);
-			Log_Debug(mqtt_success_string);
-			if(mqtt_success_string != NULL) free(mqtt_success_string);
-			mqtt_success_string = NULL;
+			Log_Debug("%s: Tx Successful\n", mqtt_message_string);
 			mqtt_message_counter++;
 		} else {
-			char *mqtt_failure_string = (char*)malloc(sizeof(mqtt_message_string) + sizeof(": No TX\n"));
-			sprintf(mqtt_failure_string, "%s: No TX\n", mqtt_message_string);
-			Log_Debug(mqtt_failure_string);
+			Log_Debug("%s: Tx Failed\n", mqtt_message_string);
 
-			if(mqtt_failure_string != NULL) free(mqtt_failure_string);
-			mqtt_failure_string = NULL;
+			
+			// char *mqtt_failure_string = (char*)malloc(sizeof(MQTT_MESSAGE_SIZE) + 25);
+			// sprintf(mqtt_failure_string, "%s: No TX\n", mqtt_message_string);
+			// Log_Debug(mqtt_failure_string);
+
+			// if(mqtt_failure_string != NULL) free(mqtt_failure_string);
+			// mqtt_failure_string = NULL;
 		} 
 		
 		free(mqtt_message_string);
