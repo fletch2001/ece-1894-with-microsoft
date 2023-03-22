@@ -6,7 +6,7 @@
   "CmdArgs": [],
   "Capabilities": {
     "AllowedApplicationConnections": [ "005180bc-402f-4cb3-a662-72937dbcde47" ],
-    "AllowedConnections": ["ece1894.eastus.cloudapp.azure.com"],
+    "AllowedConnections": ["20.62.169.88"],
     "AllowedTcpServerPorts": [1883],
     "AllowedUdpServerPorts": [],
     "Gpio": [

@@ -43,7 +43,7 @@
 #include <applibs/log.h>
 #include <applibs/i2c.h>
 
-#include <hw/sample_appliance.h>
+#include <hw/avnet_mt3620_sk.h>
 #include "deviceTwin.h"
 #include "azure_iot_utilities.h"
 #include "build_options.h"
@@ -53,9 +53,14 @@
 // mqtt
 #include "mqtt_utilities.h"
 
-const char* MQTT_ADDRESS = "ece1894.eastus.cloudapp.azure.com";
+//const char* MQTT_ADDRESS = "ece1894.eastus.cloudapp.azure.com";
+const char* MQTT_ADDRESS = "20.62.169.88";
 const char* MQTT_TOPIC = "DryerTelemetry";
 int mqtt_message_counter = -1; // counts mqtt sequence
+
+// 6 * (7 characters of float representation + period + comma separator) + sequence number (10 digits in max int so 10 characters)
+#define MQTT_MESSAGE_SIZE 6*(9*sizeof(char)) + 10*sizeof(char)
+
 
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
@@ -150,22 +155,40 @@ void AccelTimerEventHandler(EventData *eventData)
 
 	}
 	
-	// 6 * (7 characters of float representation + period + comma separator) + sequence number (10 digits in max int so 10 characters)
-	int mqtt_message_size = 6*(9*sizeof(char)) + 10*sizeof(char); 
-
-	char *mqtt_message_string = (char*)malloc(mqtt_message_size);
-	sprintf(mqtt_message_string, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
-		acceleration_mg[0], 
-		acceleration_mg[1], 
-		acceleration_mg[2],
-		angular_rate_dps[0],
-		angular_rate_dps[1],
-		angular_rate_dps[2]
-	);
-
 	// send message
-	Log_Debug(mqtt_message_string);
-	MQTTPublish(MQTT_TOPIC, mqtt_message_string);
+	if(reg)
+	{
+		char *mqtt_message_string = (char*)malloc(MQTT_MESSAGE_SIZE);
+		sprintf(mqtt_message_string, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
+			acceleration_mg[0], 
+			acceleration_mg[1], 
+			acceleration_mg[2],
+			angular_rate_dps[0],
+			angular_rate_dps[1],
+			angular_rate_dps[2]
+		);
+
+		//Log_Debug(mqtt_message_string);
+		//Log_Debug("\n");
+		if(MQTTPublish(MQTT_TOPIC, mqtt_message_string) == 0) {
+			char *mqtt_success_string = (char*)malloc(sizeof(mqtt_message_string) + sizeof(": TX With Success\n"));
+			sprintf(mqtt_success_string, "%s: TX With Success\n", mqtt_message_string);
+			Log_Debug(mqtt_success_string);
+			if(mqtt_success_string != NULL) free(mqtt_success_string);
+			mqtt_success_string = NULL;
+			mqtt_message_counter++;
+		} else {
+			char *mqtt_failure_string = (char*)malloc(sizeof(mqtt_message_string) + sizeof(": No TX\n"));
+			sprintf(mqtt_failure_string, "%s: No TX\n", mqtt_message_string);
+			Log_Debug(mqtt_failure_string);
+
+			if(mqtt_failure_string != NULL) free(mqtt_failure_string);
+			mqtt_failure_string = NULL;
+		} 
+		
+		free(mqtt_message_string);
+		mqtt_message_string = NULL;
+	}
 
 // The ALTITUDE value calculated is actually "Pressure Altitude". This lacks correction for temperature (and humidity)
 // "pressure altitude" calculator located at: https://www.weather.gov/epz/wxcalc_pressurealtitude
@@ -215,7 +238,7 @@ void AccelTimerEventHandler(EventData *eventData)
 }
 
 int initMQTTI2c(void) {
-	MQTTInit(MQTT_ADDRESS, "1833", MQTT_TOPIC);
+	return MQTTInit(MQTT_ADDRESS, "1883", MQTT_TOPIC);
 }
 
 /// <summary>
@@ -224,7 +247,7 @@ int initMQTTI2c(void) {
 /// <returns>0 on success, or -1 on failure</returns>
 int initI2c(void) {
 
-	//initMQTTI2c(); // start mqtt connection
+	initMQTTI2c(); // start mqtt connection
 	// Begin MT3620 I2C init 
 
 	i2cFd = I2CMaster_Open(AVNET_MT3620_SK_ISU2_I2C);

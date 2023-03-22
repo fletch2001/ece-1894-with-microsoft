@@ -14,12 +14,12 @@ set_source_files_properties(i2c.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 
 # Create executable
 add_executable(${PROJECT_NAME} 
-    #"main.c" 
-    #./thirdparty/MQTT-C/src/mqtt.c
-    #./thirdparty/MQTT-C/src/mqtt_pal.c
-    #"mqtt_utilities.c"
-    AvnetStarterKitReferenceDesign/main.c
-    AvnetStarterKitReferenceDesign/i2c.c
+    main.c
+    ./thirdparty/MQTT-C/src/mqtt.c
+    ./thirdparty/MQTT-C/src/mqtt_pal.c
+    mqtt_utilities.c
+    # AvnetStarterKitReferenceDesign/main.c
+    # AvnetStarterKitReferenceDesign/i2c.c
     epoll_timerfd_utilities.c 
     parson.c 
     azure_iot_utilities.c 
@@ -35,5 +35,5 @@ TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 target_include_directories(${PROJECT_NAME} PUBLIC ${AZURE_SPHERE_API_SET_DIR}/usr/include/azureiot ${AZURE_SPHERE_API_SET_DIR}/usr/include/azure_prov_client)
 target_compile_definitions(${PROJECT_NAME} PUBLIC AZURE_IOT_HUB_CONFIGURED)
 
-azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DIRECTORY "${projectDir}Hardware/avnet_mt3620_sk_rev2" TARGET_DEFINITION "sample_appliance.json")
+azsphere_target_hardware_definition(${PROJECT_NAME} TARGET_DEFINITION "avnet_mt3620_sk.json")
 azsphere_target_add_image_package(${PROJECT_NAME}) 
