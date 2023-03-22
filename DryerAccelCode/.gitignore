@@ -65,3 +65,4 @@ dkms.conf
 out/*
 CMakeFiles/
 CMakeCache.txt
+.vscode/settings.json
