@@ -74,6 +74,8 @@ static int gpioButtonFd;
 bool collect_samples = false;
 GPIO_Value_Type buttonState;
 
+static int gpioLEDMQTTFd;
+
 static uint8_t whoamI, rst;
 int accelTimerFd;
 const uint8_t lsm6dsOAddress = LSM6DSO_ADDRESS;     // Addr = 0x6A
@@ -91,6 +93,20 @@ extern int epollFd;
 extern volatile sig_atomic_t terminationRequired;
 
 //Private functions
+
+void publishMQTTMessageFromI2C(char *mqtt_message_string) {
+	int mqtt_status = MQTTIsActiveConnection();
+
+	if(MQTTPublish(MQTT_TOPIC, mqtt_message_string) == 0) {
+		Log_Debug("%s: Tx Successful\n", mqtt_message_string);
+		mqtt_message_counter++;
+	} else {
+		if(!mqtt_status) {
+			MQTTInit(MQTT_ADDRESS, "1883", MQTT_TOPIC);
+		}
+		publishMQTTMessageFromI2C(mqtt_message_string);
+	}
+}
 
 // Routines to read/write to the LSM6DSO device
 static int32_t platform_write(int *fD, uint8_t reg, uint8_t *bufp, uint16_t len);
@@ -201,19 +217,10 @@ void AccelTimerEventHandler(EventData *eventData)
 
 			//Log_Debug(mqtt_message_string);
 			//Log_Debug("\n");
-			int mqtt_status = MQTTIsActiveConnection();
+			
+			
 
-
-			if(!mqtt_status) {
-				MQTTKillSubthread();
-				MQTTInit(MQTT_ADDRESS, "1883", MQTT_TOPIC); // re-init mqtt client
-			} else {
-
-				if(MQTTPublish(MQTT_TOPIC, mqtt_message_string) == 0) {
-					Log_Debug("%s: Tx Successful\n", mqtt_message_string);
-					mqtt_message_counter++;
-				} else {
-					Log_Debug("%s: Tx Failed\n", mqtt_message_string);
+			publishMQTTMessageFromI2C(mqtt_message_string); // publish message
 
 					
 					// char *mqtt_failure_string = (char*)malloc(sizeof(MQTT_MESSAGE_SIZE) + 25);
@@ -222,8 +229,7 @@ void AccelTimerEventHandler(EventData *eventData)
 
 					// if(mqtt_failure_string != NULL) free(mqtt_failure_string);
 					// mqtt_failure_string = NULL;
-				} 
-			}
+		
 			
 			free(mqtt_message_string);
 			mqtt_message_string = NULL;
