@@ -34,7 +34,7 @@ def appendToCSV():
 def appendToText(msg):
     # Append-adds at last
     file1 = open("myfile.txt", "a")  # append mode
-    file1.write(msg.payload)
+    file1.write(msg.payload.decode("utf-8")+"\n")
     file1.close()
 
 def createList():
