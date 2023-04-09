@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(AvnetStarterKitReferenceDesign C) 
 
-azsphere_configure_tools(TOOLS_REVISION "20.10")
+azsphere_configure_tools(TOOLS_REVISION "22.11")
 azsphere_configure_api(TARGET_API_SET "15")
  
 set_source_files_properties(lsm6dso_reg.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
@@ -13,8 +13,25 @@ set_source_files_properties(oled.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 set_source_files_properties(i2c.c PROPERTIES COMPILE_FLAGS -Wno-conversion)
 
 # Create executable
-add_executable(${PROJECT_NAME} main.c epoll_timerfd_utilities.c parson.c azure_iot_utilities.c device_twin.c i2c.c lsm6dso_reg.c)
+add_executable(${PROJECT_NAME} 
+    main.c
+    ./thirdparty/MQTT-C/src/mqtt.c
+    ./thirdparty/MQTT-C/src/mqtt_pal.c
+    mqtt_utilities.c
+    # AvnetStarterKitReferenceDesign/main.c
+    # AvnetStarterKitReferenceDesign/i2c.c
+    epoll_timerfd_utilities.c 
+    parson.c 
+    azure_iot_utilities.c 
+    device_twin.c 
+    i2c.c 
+    lsm6dso_reg.c
+    common.c
+)
 target_link_libraries(${PROJECT_NAME} m azureiot applibs pthread gcc_s c)
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
+                           ./thirdparty/MQTT-C/include
+                           )
 target_include_directories(${PROJECT_NAME} PUBLIC ${AZURE_SPHERE_API_SET_DIR}/usr/include/azureiot ${AZURE_SPHERE_API_SET_DIR}/usr/include/azure_prov_client)
 target_compile_definitions(${PROJECT_NAME} PUBLIC AZURE_IOT_HUB_CONFIGURED)
 

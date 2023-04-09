@@ -47,7 +47,7 @@
 #include "applibs_versions.h"
 #include "epoll_timerfd_utilities.h"
 #include "i2c.h"
-#include <hw/avnet_mt3620_sk.h>
+//#include "hw/avnet_mt3620_sk.h"
 #include "deviceTwin.h"
 #include "azure_iot_utilities.h"
 #include "connection_strings.h"
@@ -59,7 +59,7 @@
 #include <applibs/wificonfig.h>
 #include <azureiot/iothub_device_client_ll.h>
 
-#include "../mqtt_utilities.h"
+//#include "mqtt_utilities.h"
 
 #ifdef M0_INTERCORE_COMMS
 //// ADC connection
@@ -445,7 +445,7 @@ static int InitPeripheralsAndHandlers(void)
 	
 	if (initI2c() == -1) {
 		return -1;
-	} else if (Mqtt)
+	}
 	
 	// Traverse the twin Array and for each GPIO item in the list open the file descriptor
 	for (int i = 0; i < twinArraySize; i++) {

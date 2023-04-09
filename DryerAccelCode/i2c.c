@@ -51,11 +51,17 @@
 #include "lsm6dso_reg.h"
 
 // mqtt
-#include "../mqtt_utilities.h"
+#include "mqtt_utilities.h"
 
-const char* MQTT_ADDRESS = "ece1894.eastus.cloudapp.azure.com";
+//const char* MQTT_ADDRESS = "ece1894.eastus.cloudapp.azure.com";
+const char* MQTT_ADDRESS = "20.62.169.88";
 const char* MQTT_TOPIC = "DryerTelemetry";
-int mqtt_message_counter; // counts mqtt sequence
+int mqtt_message_counter = 0; // counts mqtt sequence
+
+// 6 * (7 characters of float representation + period + comma separator) + sequence number (10 digits in max int so 10 characters) + null terminator
+//#define MQTT_MESSAGE_SIZE 6*(9*sizeof(char)) + 10*sizeof(char) + sizeof(char)
+#define MQTT_MESSAGE_SIZE 150
+
 
 /* Private variables ---------------------------------------------------------*/
 static axis3bit16_t data_raw_acceleration;
@@ -63,6 +69,12 @@ static axis3bit16_t data_raw_angular_rate;
 static axis3bit16_t raw_angular_rate_calibration;
 static float acceleration_mg[3];
 static float angular_rate_dps[3];
+
+static int gpioButtonFd;
+bool collect_samples = false;
+GPIO_Value_Type buttonState;
+
+static int gpioLEDMQTTFd;
 
 static uint8_t whoamI, rst;
 int accelTimerFd;
@@ -81,6 +93,20 @@ extern int epollFd;
 extern volatile sig_atomic_t terminationRequired;
 
 //Private functions
+
+void publishMQTTMessageFromI2C(char *mqtt_message_string) {
+	int mqtt_status = MQTTIsActiveConnection();
+
+	if(MQTTPublish(MQTT_TOPIC, mqtt_message_string) == 0) {
+		Log_Debug("%s: Tx Successful\n", mqtt_message_string);
+		mqtt_message_counter++;
+	} else {
+		if(!mqtt_status) {
+			MQTTInit(MQTT_ADDRESS, "1883", MQTT_TOPIC);
+		}
+		publishMQTTMessageFromI2C(mqtt_message_string);
+	}
+}
 
 // Routines to read/write to the LSM6DSO device
 static int32_t platform_write(int *fD, uint8_t reg, uint8_t *bufp, uint16_t len);
@@ -113,58 +139,102 @@ void AccelTimerEventHandler(EventData *eventData)
 		return;
 	}
 
+	GPIO_Value_Type newButtonState;
+	GPIO_GetValue(gpioButtonFd, &newButtonState); // read in button
+	if(newButtonState != buttonState) {
+		if(newButtonState == GPIO_Value_Low) {
+			collect_samples = !collect_samples; // toggle sample collection when button is pressed.
+			Log_Debug("Collect Sample State set to: %d\n", collect_samples);
+		}
+	}
+
+	buttonState = newButtonState; // store state
+
+
 	// Read the sensors on the lsm6dso device
 
 	//Read output only if new xl value is available
-	lsm6dso_xl_flag_data_ready_get(&dev_ctx, &reg);
-	if (reg)
-	{
-		// Read acceleration field data
-		memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
-		lsm6dso_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
-
-		acceleration_mg[0] = lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[0]);
-		acceleration_mg[1] = lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[1]);
-		acceleration_mg[2] = lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[2]);
-
-		Log_Debug("\nLSM6DSO: Acceleration [mg]  : %.4lf, %.4lf, %.4lf\n",
-			acceleration_mg[0], acceleration_mg[1], acceleration_mg[2]);
-	}
-
-	lsm6dso_gy_flag_data_ready_get(&dev_ctx, &reg);
-	if (reg)
-	{
-		// Read angular rate field data
-		memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
-		lsm6dso_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
-
-		// Before we store the mdps values subtract the calibration data we captured at startup.
-		angular_rate_dps[0] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0] - raw_angular_rate_calibration.i16bit[0])) / 1000.0;
-		angular_rate_dps[1] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1] - raw_angular_rate_calibration.i16bit[1])) / 1000.0;
-		angular_rate_dps[2] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2] - raw_angular_rate_calibration.i16bit[2])) / 1000.0;
-
-		
-
-		Log_Debug("LSM6DSO: Angular rate [dps] : %4.2f, %4.2f, %4.2f\r\n",
-			angular_rate_dps[0], angular_rate_dps[1], angular_rate_dps[2]);
-
-	}
 	
-	// 6 * (7 characters of float representation + period + comma separator) + sequence number
-	int mqtt_message_size = 6*(9*sizeof(char)) + sizeof(char); 
+	if(collect_samples) {
+	
+		lsm6dso_xl_flag_data_ready_get(&dev_ctx, &reg);
+		if (reg)
+		{
+			// Read acceleration field data
+			memset(data_raw_acceleration.u8bit, 0x00, 3 * sizeof(int16_t));
+			lsm6dso_acceleration_raw_get(&dev_ctx, data_raw_acceleration.u8bit);
 
-	char *mqtt_message_string = (char*)malloc(mqtt_message_size);
-	sprintf(mqtt_message_string, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
-		acceleration_mg[0], 
-		acceleration_mg[1], 
-		acceleration_mg[2],
-		angular_rate_dps[0],
-		angular_rate_dps[1],
-		angular_rate_dps[2]
-	);
+			acceleration_mg[0] = lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[0]);
+			acceleration_mg[1] = lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[1]);
+			acceleration_mg[2] = lsm6dso_from_fs4_to_mg(data_raw_acceleration.i16bit[2]);
 
-	// send message
-	MQTTPublish(MQTT_TOPIC, mqtt_message_string);
+			Log_Debug("\nLSM6DSO: Acceleration [mg]  : %.4lf, %.4lf, %.4lf\n",
+				acceleration_mg[0], acceleration_mg[1], acceleration_mg[2]);
+		}
+
+		lsm6dso_gy_flag_data_ready_get(&dev_ctx, &reg);
+		if (reg)
+		{
+			// Read angular rate field data
+			memset(data_raw_angular_rate.u8bit, 0x00, 3 * sizeof(int16_t));
+			lsm6dso_angular_rate_raw_get(&dev_ctx, data_raw_angular_rate.u8bit);
+
+			// Before we store the mdps values subtract the calibration data we captured at startup.
+			angular_rate_dps[0] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[0] - raw_angular_rate_calibration.i16bit[0])) / 1000.0;
+			angular_rate_dps[1] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[1] - raw_angular_rate_calibration.i16bit[1])) / 1000.0;
+			angular_rate_dps[2] = (lsm6dso_from_fs2000_to_mdps(data_raw_angular_rate.i16bit[2] - raw_angular_rate_calibration.i16bit[2])) / 1000.0;
+
+			
+
+			Log_Debug("LSM6DSO: Angular rate [dps] : %4.2f, %4.2f, %4.2f\r\n",
+				angular_rate_dps[0], angular_rate_dps[1], angular_rate_dps[2]);
+
+		}
+		
+		// send message
+		if(reg)
+		{
+			// char *mqtt_message_string = (char*)malloc(MQTT_MESSAGE_SIZE);
+
+			size_t mqtt_message_size = snprintf(NULL, 0, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
+				acceleration_mg[0], 
+				acceleration_mg[1], 
+				acceleration_mg[2],
+				angular_rate_dps[0],
+				angular_rate_dps[1],
+				angular_rate_dps[2]
+			) + 1;
+
+			char *mqtt_message_string = (char *)malloc(mqtt_message_size);
+			sprintf(mqtt_message_string, "%d,%f,%f,%f,%f,%f,%f", mqtt_message_counter,
+				acceleration_mg[0], 
+				acceleration_mg[1], 
+				acceleration_mg[2],
+				angular_rate_dps[0],
+				angular_rate_dps[1],
+				angular_rate_dps[2]
+			);
+
+			//Log_Debug(mqtt_message_string);
+			//Log_Debug("\n");
+			
+			
+
+			publishMQTTMessageFromI2C(mqtt_message_string); // publish message
+
+					
+					// char *mqtt_failure_string = (char*)malloc(sizeof(MQTT_MESSAGE_SIZE) + 25);
+					// sprintf(mqtt_failure_string, "%s: No TX\n", mqtt_message_string);
+					// Log_Debug(mqtt_failure_string);
+
+					// if(mqtt_failure_string != NULL) free(mqtt_failure_string);
+					// mqtt_failure_string = NULL;
+		
+			
+			free(mqtt_message_string);
+			mqtt_message_string = NULL;
+		}
+	}
 
 // The ALTITUDE value calculated is actually "Pressure Altitude". This lacks correction for temperature (and humidity)
 // "pressure altitude" calculator located at: https://www.weather.gov/epz/wxcalc_pressurealtitude
@@ -213,8 +283,19 @@ void AccelTimerEventHandler(EventData *eventData)
 
 }
 
+// initializes SW3 - button B as input
+int initGPIO_Input(void) {
+	gpioButtonFd = GPIO_OpenAsInput(AVNET_MT3620_SK_USER_BUTTON_B);
+	if(gpioButtonFd == -1) {
+		Log_Debug("ERROR: Could not open button B: %s (%d).\n", strerror(errno), errno);
+		return 8;
+	}
+
+	return GPIO_GetValue(gpioButtonFd, &buttonState);
+}
+
 int initMQTTI2c(void) {
-	MQTTInit(MQTT_ADDR, "1833", MQTT_TOPIC);
+	return MQTTInit(MQTT_ADDRESS, "1883", MQTT_TOPIC);
 }
 
 /// <summary>
@@ -224,8 +305,11 @@ int initMQTTI2c(void) {
 int initI2c(void) {
 
 	initMQTTI2c(); // start mqtt connection
-
 	// Begin MT3620 I2C init 
+
+	if(initGPIO_Input() < 0) {
+		return -1; 
+	}
 
 	i2cFd = I2CMaster_Open(AVNET_MT3620_SK_ISU2_I2C);
 	if (i2cFd < 0) {
@@ -368,6 +452,8 @@ int initI2c(void) {
 		return -1;
 	}
 	
+	MQTTPublish(MQTT_TOPIC, "-1,-1,-1,-1,-1,-1,-1");
+
 	return 0;
 }
 

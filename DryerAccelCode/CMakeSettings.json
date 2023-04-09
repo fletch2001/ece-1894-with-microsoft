@@ -12,9 +12,9 @@
       "inheritEnvironments": [
         "AzureSphere"
       ],
-      "buildRoot": "${projectDir}\\out\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeToolchain": "${env.AzureSphereDefaultSDKDir}CMakeFiles\\AzureSphereToolchain.cmake",
+      "buildRoot": "${projectDir}/out/${name}",
+      "installRoot": "${projectDir}/install/${name}",
+      "CMAKE_TOOLCHAIN_FILE": "$env{AzureSphereDefaultSDKDir}/CMakeFiles/AzureSphereToolchain.cmake",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "variables": [
@@ -31,9 +31,9 @@
       "inheritEnvironments": [
         "AzureSphere"
       ],
-      "buildRoot": "${projectDir}\\out\\${name}",
-      "installRoot": "${projectDir}\\install\\${name}",
-      "cmakeToolchain": "${env.AzureSphereDefaultSDKDir}CMakeFiles\\AzureSphereToolchain.cmake",
+      "buildRoot": "${projectDir}/out/${name}",
+      "installRoot": "${projectDir}/install/${name}",
+      "cmakeToolchain": "$env{AzureSphereDefaultSDKDir}/CMakeFiles/AzureSphereToolchain.cmake",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "variables": [
