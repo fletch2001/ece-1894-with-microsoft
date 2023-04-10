@@ -9,6 +9,7 @@ azsphere_configure_tools(TOOLS_REVISION "22.11")
 
 # include drivers
 include_directories(mt3620-m4-drivers-master)
+include_directories(lsm6dso-pid-master) #pid:: platform-independent
 
 # Create executable
 add_executable (${PROJECT_NAME} main.c)
