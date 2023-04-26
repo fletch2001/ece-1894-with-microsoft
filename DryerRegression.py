@@ -37,18 +37,18 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, msg):
     # print(msg.topic+" "+str(msg.payload))
-    listifiedData = listifyData(str(msg.payload))
+    listifiedData = listifyData((msg.payload))
     print(listifiedData)
     # print(predictClothes(listifiedData))
     client.publish("arf/microsoft/output", str(1.0-predictClothes(listifiedData)))
 
 #==============================Parse Data and Predict===========================
 def listifyData(message):
-    inputData = message.split(",")
+    inputData = message.split(b',')
     # print(inputData)
     inputData.pop(0)
-    inputData.pop(6)
-    map(float, inputData)
+    # inputData.pop(6)
+    # map(float, inputData)
     floats=[]
     floats = [list([float(x) for x in inputData])]
     # numpyData = numpy.array(inputDataRaw)
