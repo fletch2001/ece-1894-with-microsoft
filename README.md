@@ -2,15 +2,15 @@
 ## January-April 2023
 
 ## Authors
-* Stephanie da Costa (smd149@pitt.edu)[mailto:smd149@pitt.edu]
-* Raheel Farouk (raheelfarouk@pitt.edu)[mailto:raheelfarouk@pitt.edu]
-* Noah Lichstein (nml62@pitt.edu)[mailto:nml62@pitt.edu]
+* Stephanie da Costa [smd149@pitt.edu](mailto:smd149@pitt.edu)
+* Raheel Farouk [raheelfarouk@pitt.edu](mailto:raheelfarouk@pitt.edu)
+* Noah Lichstein [nml62@pitt.edu](mailto:nml62@pitt.edu)
 
 ## Getting Started
 We started the project off by reading:
-* (Azure Sphere Quickstarts)[https://learn.microsoft.com/en-us/azure-sphere/install/overview]
-* (The Seven Properties of Highly Secured Devices)[https://www.microsoft.com/en-us/research/wp-content/uploads/2017/03/SevenPropertiesofHighlySecureDevices.pdf]
-* (Overview of Azure Sphere Applications)[https://learn.microsoft.com/en-us/azure-sphere/app-development/applications-overview]
+* [Azure Sphere Quickstarts](https://learn.microsoft.com/en-us/azure-sphere/install/overview)
+* [The Seven Properties of Highly Secured Devices](https://www.microsoft.com/en-us/research/wp-content/uploads/2017/03/SevenPropertiesofHighlySecureDevices.pdf)
+* [Overview of Azure Sphere Applications](https://learn.microsoft.com/en-us/azure-sphere/app-development/applications-overview)
 These are some really good resources written by some really good people who we got to work with over the course of the semester.
 
 
