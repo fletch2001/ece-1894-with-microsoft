@@ -16,7 +16,7 @@ These are some really good resources written by some really good people who we g
 
 
 ## What's in this repo
-We made pretty good progress getting things started. A high-level only and high-level/real-time app are both set up within this repo. It's probably easier to learn Sphere with High Level apps as they really leverage the Sphere-y things that Microsoft has to offer. So far, we've collected one dryer load's worth of data and done quite a bit of processing on it. That stuff is in the azure-ml folder. 
+We made pretty good progress getting things started. A high-level only and high-level/real-time app are both set up within this repo. It's probably easier to learn Sphere with High Level apps as they really leverage the Sphere-y things that Microsoft has to offer. So far, we've collected one dryer load's worth of data and done quite a bit of processing on it. That library is included as a .zip in this repo. 
 
 We gave a presentation at the Microsoft Pittsburgh Office on April 26th, 2023. Our presentation is in our repository - [microsoft-presentation-04262023.pdf](microsoft-presentation-04262023.pdf). It's a good visual overview of our architecture and what we have so far.
 
