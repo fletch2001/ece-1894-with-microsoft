@@ -1,0 +1,10 @@
+{
+  "SchemaVersion": 1,
+  "Name": "Dryer-RT",
+  "ComponentId": "120b9f11-85d4-4071-a352-6315b956d283",
+  "EntryPoint": "/bin/app",
+  "CmdArgs": [],
+  "Capabilities": {
+  },
+  "ApplicationType": "RealTimeCapable"
+}
